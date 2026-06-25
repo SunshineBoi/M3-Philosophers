@@ -6,7 +6,7 @@
 /*   By: kong <kong@student.42singapore.sg>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/18 16:34:15 by kong              #+#    #+#             */
-/*   Updated: 2026/06/24 10:52:00 by kong             ###   ########.fr       */
+/*   Updated: 2026/06/25 22:18:27 by kong             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,6 @@ void	free_app(t_app *app)
 t_app	*init_app(char **av)
 {
 	t_app			*app;
-	// struct timeval	start;
 
 	app = malloc(sizeof(t_app));
 	if (!app)
@@ -66,25 +65,22 @@ t_app	*init_app(char **av)
 		return (free_app(app), NULL);
 	app->flag_stop = 0;
 	app->err = ERR_OK;
-	// if (gettimeofday(&start, NULL) == -1)
-	// 	return (printf("philo: Error\n"), free_app(app), NULL);
-	// app->t_start_app = (start.tv_sec * 1000) + (start.tv_usec / 1000);
 	return (app);
 }
 
-int main(int ac, char **av)
+int	main(int ac, char **av)
 {
 	t_app	*app;
 
 	if (ac != 5 && ac != 6)
-		return (EXIT_FAILURE);
+		return (printf("philo: Bad input\n"), EXIT_FAILURE);
 	app = init_app(av + 1);
 	if (!app)
 		return (EXIT_FAILURE);
 	if (philo(app) == -1)
 	{
-		perrcode(app); 
-		free_app(app); 
+		perrcode(app);
+		free_app(app);
 		return (EXIT_FAILURE);
 	}
 	free_app(app);

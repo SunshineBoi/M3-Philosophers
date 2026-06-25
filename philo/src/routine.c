@@ -6,7 +6,7 @@
 /*   By: kong <kong@student.42singapore.sg>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/23 16:48:51 by kong              #+#    #+#             */
-/*   Updated: 2026/06/25 19:12:19 by kong             ###   ########.fr       */
+/*   Updated: 2026/06/26 00:06:19 by kong             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,37 +32,28 @@ void	*single_philo_routine(t_philo *philo)
 void	*philo_routine(void *data)
 {
 	t_philo	*philo;
-	t_app	*app;
+	long	surplus;
 
 	philo = (t_philo *)data;
-	app = philo->app;
-	// philo->tid = pthread_self();
-	if (app->n_philo == 1)
+	if (philo->app->n_philo == 1)
 		return (single_philo_routine(philo));
 	if (philo->id % 2 == 1)
-		precise_sleep(app, (app->t_eat + app->t_sleep) / 2);
-		// precise_sleep(app, app->t_eat);
-	while (get_stopflag(app) != 1)
+		precise_sleep(philo->app,
+			(philo->app->t_eat + philo->app->t_sleep) / 2);
+	while (get_stopflag(philo->app) != 1)
 	{
-		printf_action(philo, get_timestamp(app), ACT_THINK);
+		printf_action(philo, get_timestamp(philo->app), ACT_THINK);
 		// if (philo->id % 2 == 1 && app->t_eat > app->t_sleep)
 		// 	precise_sleep(app, app->t_eat - app->t_sleep);
-		// if (philo->id % 2 == 1 && philo->n_eaten > 0)
-		// {
-		// 	long surplus = app->t_eat - app->t_sleep;
-		// 	if (surplus > 0)
-		// 		precise_sleep(app, surplus);
-		// }
-		// !
 		if (philo->n_eaten > 0)
 		{
-			long surplus = app->t_eat - app->t_sleep;
+			surplus = philo->app->t_eat - philo->app->t_sleep;
 			if (surplus > 0)
-				precise_sleep(app, surplus);
-			precise_sleep(app, 1);
+				precise_sleep(philo->app, surplus);
+			precise_sleep(philo->app, 1);
 		}
 		// start eating
-		if (eating_routine(app, philo) == -1)
+		if (eating_routine(philo->app, philo) == -1)
 			break ;
 		// time to sleep
 		if (sleeping_routine(philo) == -1)
@@ -72,7 +63,7 @@ void	*philo_routine(void *data)
 }
 
 static int	helper_watcher(t_app *app, int philo_id, int *finished)
-{	
+{
 	long	t_passed;
 
 	pthread_mutex_lock(&app->mutex_lasteaten[philo_id]);
@@ -83,14 +74,13 @@ static int	helper_watcher(t_app *app, int philo_id, int *finished)
 		(*finished)++;
 		return (0);
 	}
-	// t_passed = get_timestamp(app) - get_lasteatentime(app, i);
 	t_passed = get_timestamp(app) - app->arr_philos[philo_id].t_lasteaten;
 	pthread_mutex_unlock(&app->mutex_lasteaten[philo_id]);
 	if (t_passed > app->t_die)
 	{
 		set_stopflag(app);
 		printf_action(&app->arr_philos[philo_id], get_timestamp(app), ACT_DIE);
-		return (-1) ;
+		return (-1);
 	}
 	return (0);
 }
@@ -102,7 +92,6 @@ void	*watcher_routine(void *data)
 	int		finished;
 
 	app = (t_app *)data;
-
 	while (1)
 	{
 		i = 0;
@@ -116,6 +105,6 @@ void	*watcher_routine(void *data)
 		}
 		if (app->n_toeat != -1 && finished == app->n_philo)
 			return (NULL);
-		usleep(500);
+		usleep(100);
 	}
 }

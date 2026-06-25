@@ -6,7 +6,7 @@
 /*   By: kong <kong@student.42singapore.sg>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/23 16:47:53 by kong              #+#    #+#             */
-/*   Updated: 2026/06/25 12:41:54 by kong             ###   ########.fr       */
+/*   Updated: 2026/06/25 22:24:35 by kong             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ long	get_lasteatentime(t_app *app, int philo_id)
 	pthread_mutex_lock(&app->mutex_lasteaten[philo_id]);
 	time_lasteaten = app->arr_philos[philo_id].t_lasteaten;
 	pthread_mutex_unlock(&app->mutex_lasteaten[philo_id]);
-
 	return (time_lasteaten);
 }
 
@@ -57,6 +56,6 @@ void	precise_sleep(t_app *app, long duration)
 	{
 		if (get_stopflag(app) == 1)
 			return ;
-		usleep(100); // sub-ms precision
+		usleep(100);
 	}
 }

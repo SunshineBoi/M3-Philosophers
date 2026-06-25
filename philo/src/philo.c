@@ -6,7 +6,7 @@
 /*   By: kong <kong@student.42singapore.sg>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/23 16:45:54 by kong              #+#    #+#             */
-/*   Updated: 2026/06/24 11:02:43 by kong             ###   ########.fr       */
+/*   Updated: 2026/06/25 22:21:31 by kong             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,16 +35,13 @@ t_philo	init_philo(t_app *app, int philo_id)
 	philo.t_lasteaten = 0;
 	philo.left_fork = (philo_id - 1 + app->n_philo) % app->n_philo;
 	philo.right_fork = philo_id;
-
 	return (philo);
 }
 
 int	philo(t_app *app)
 {
-	// printing format: [timestamp milliseconds] [TID] [actions]
-	// actions : 'has taken a fork'; 'is eating'; 'is sleeping'; 'is thinking'; 'died'
-	int			i;
-	pthread_t	watcher_tid;
+	int				i;
+	pthread_t		watchertid;
 	struct timeval	start;
 
 	i = 0;
@@ -56,17 +53,16 @@ int	philo(t_app *app)
 	if (gettimeofday(&start, NULL) == -1)
 		return (set_errcode(app, ERR_GEN), -1);
 	app->t_start_app = (start.tv_sec * 1000) + (start.tv_usec / 1000);
-	if (pthread_create(&watcher_tid, NULL, watcher_routine, app) != 0)
+	if (pthread_create(&watchertid, NULL, watcher_routine, app) != 0)
 		return (set_errcode(app, ERR_GEN), -1);
 	i = 0;
 	while (i < app->n_philo)
 	{
-		// app->arr_philos[i] = init_philo(app, i);
 		if (pthread_create(&app->arr_philos[i].tid, NULL,
-			philo_routine, &app->arr_philos[i]) != 0)
+				philo_routine, &app->arr_philos[i]) != 0)
 			return (set_stopflag(app), join_threads(app, i),
-				pthread_join(watcher_tid, NULL), set_errcode(app, ERR_GEN), -1);
+				pthread_join(watchertid, NULL), set_errcode(app, ERR_GEN), -1);
 		i++;
-	}	
-	return (pthread_join(watcher_tid, NULL), join_threads(app, app->n_philo), 0);
+	}
+	return (pthread_join(watchertid, NULL), join_threads(app, app->n_philo), 0);
 }
